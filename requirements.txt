@@ -1,6 +1,6 @@
 # requirements.txt
 
-# Ccore & environment
+# core & environment
 Flask
 python-dotenv
 requests
@@ -24,6 +24,7 @@ httpx
 # n8n & webhook connection
 fastapi
 uvicorn
+gunicorn
 
 # telegram & twitter
 python-telegram-bot
