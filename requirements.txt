@@ -1,2 +1,30 @@
-Flask 
+# requirements.txt
+
+# Ccore & environment
+Flask
 python-dotenv
+requests
+
+# async & background tasks
+aiohttp
+asyncio
+
+# data
+pandas
+jsonschema
+
+# dogging & errors
+rich
+loguru
+
+# api integration
+openai
+httpx
+
+# n8n & webhook connection
+fastapi
+uvicorn
+
+# telegram & twitter
+python-telegram-bot
+tweepy
