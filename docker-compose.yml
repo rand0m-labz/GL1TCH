@@ -24,6 +24,7 @@ services:
       - ./data/n8n:/home/node/.n8n
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - WEBHOOK_URL=https://lorelei-gnarlier-marquitta.ngrok-free.dev/
 
   tg_worker:
     build: .
