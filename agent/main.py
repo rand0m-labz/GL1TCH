@@ -1,6 +1,6 @@
 # main.py
 from flask import Flask, request, jsonify
-import os
+import os, requests
 
 app = Flask(__name__)
 
@@ -17,9 +17,19 @@ def index():
 @app.route("/glitch", methods=["POST"])
 def glitch():
     data = request.json
-    user_input = data.get("prompt", "")
-    response = f"💥 {AGENT_NAME} detected instability in: '{user_input}'"
-    return jsonify({"response": response})
+    prompt = data.get("prompt", "")
+    n8n_url = "https://lorelei-gnarlier-marquitta.ngrok-free.dev/webhook/gl1tch-test"
+
+    try:
+        r = requests.post(n8n_url, json={"prompt": prompt}, timeout=10)
+        n8n_response = r.json()
+    except Exception as e:
+        n8n_response = {"reply": f"⚠️ N8N connection failed: {e}"}
+
+    return jsonify({
+        "reply": n8n_response.get("reply", f"💥 {AGENT_NAME} detected instability in: '{prompt}'")
+    })
+
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))

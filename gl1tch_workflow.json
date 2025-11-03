@@ -1,0 +1,81 @@
+{
+  "name": "GL1TCH Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gl1tch-test",
+        "responseMode": "onReceived"
+      },
+      "id": "Webhook1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8080/glitch",
+        "method": "POST",
+        "sendBody": true,
+        "jsonBody": true,
+        "bodyParametersJson": "{\"prompt\": \"{{$json[\"body\"][\"prompt\"]}}\"}"
+      },
+      "id": "HTTPRequest1",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "chatInput": "{{$json[\"body\"][\"prompt\"]}}",
+        "model": "gpt-4-turbo-preview",
+        "temperature": 0.7
+      },
+      "id": "BasicLLMChain1",
+      "name": "Basic LLM Chain1",
+      "type": "n8n-nodes-base.llmChain",
+      "typeVersion": 1,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "prompt": "{{$json[\"body\"][\"prompt\"]}}",
+        "responseFormat": "text"
+      },
+      "id": "OpenAIChatModel1",
+      "name": "OpenAI Chat Model1",
+      "type": "n8n-nodes-base.openAiChatModel",
+      "typeVersion": 1,
+      "position": [950, 300]
+    },
+    {
+      "parameters": {
+        "responseMode": "lastNode",
+        "responseData": "={{ {\"reply\": $json[\"text\"] || 'No response generated' } }}"
+      },
+      "id": "RespondWebhook1",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1200, 300]
+    }
+  ],
+  "connections": {
+    "Webhook1": {
+      "main": [[{ "node": "HTTPRequest1", "type": "main", "index": 0 }]]
+    },
+    "HTTPRequest1": {
+      "main": [[{ "node": "Basic LLM Chain1", "type": "main", "index": 0 }]]
+    },
+    "Basic LLM Chain1": {
+      "main": [[{ "node": "OpenAI Chat Model1", "type": "main", "index": 0 }]]
+    },
+    "OpenAI Chat Model1": {
+      "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false
+}
