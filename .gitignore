@@ -1,0 +1,62 @@
+# 🧠 Core System / Editor
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 🧰 OS / Logs
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# 🧩 Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+env/
+venv/
+.venv/
+pip-wheel-metadata/
+*.sqlite3
+
+# ⚙️ Node / JavaScript
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# 🧱 Compiled / Build
+dist/
+build/
+out/
+*.class
+*.o
+*.obj
+*.dll
+*.exe
+
+# 🪄 Environment / Secrets
+.env
+.env.*
+*.key
+*.pem
+*.crt
+
+# 🧪 Test / Coverage
+coverage/
+*.cover
+.cache/
+.pytest_cache/
+
+# 🧬 Misc
+*.iml
+*.sublime-workspace
+*.sublime-project
+*.zip
+*.tar.gz
