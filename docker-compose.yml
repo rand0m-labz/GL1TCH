@@ -24,3 +24,11 @@ services:
       - ./data/n8n:/home/node/.n8n
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+
+  tg_worker:
+    build: .
+    container_name: tg_worker
+    command: python -m agent.tg_worker
+    env_file: .env
+    depends_on:
+      - gl1tch
