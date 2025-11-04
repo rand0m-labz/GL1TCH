@@ -1,0 +1,51 @@
+# render.yaml
+services:
+  - type: web
+    name: gl1tch-agent
+    env: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: AGENT_NAME
+        value: GL1TCH
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: N8N_BASIC_AUTH_USER
+        value: rand0m.labzzz@gmail.com
+      - key: N8N_BASIC_AUTH_PASSWORD
+        sync: false
+      - key: WEBHOOK_URL
+        value: https://n8n-gl1tch.onrender.com/webhook/gl1tch-test
+
+  - type: worker
+    name: gl1tch-telegram-worker
+    env: docker
+    plan: free
+    autoDeploy: true
+    startCommand: python -m agent.tg_worker
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: GL1TCH_API_URL
+        value: https://gl1tch-agent.onrender.com
+
+  - type: web
+    name: n8n-gl1tch
+    env: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /
+    envVars:
+      - key: N8N_BASIC_AUTH_ACTIVE
+        value: true
+      - key: N8N_BASIC_AUTH_USER
+        value: rand0m.labzzz@gmail.com
+      - key: N8N_BASIC_AUTH_PASSWORD
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: TZ
+        value: America/New_York
