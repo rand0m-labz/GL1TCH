@@ -15,7 +15,7 @@ def handle_message(chat_id, text):
         res = requests.post(f"{GL1TCH_API_URL}/glitch", json={"prompt": text}, timeout=20)
         res.raise_for_status()
         data = res.json()
-        reply = data.get("response", "No response from GL1TCH")
+        reply = data.get("reply", "No response from GL1TCH")
     except Exception as e:
         reply = f"⚠️ Error: {e}"
     send_message(chat_id, reply)

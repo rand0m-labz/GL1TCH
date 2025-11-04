@@ -46,7 +46,7 @@ services:
   tg_worker:
     build: .
     container_name: tg_worker
-    command: python -m agent.tg_worker
+    command: python -m agent.tg_worker.py
     env_file: .env
     restart: always
     depends_on:
