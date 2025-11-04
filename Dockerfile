@@ -19,3 +19,5 @@ ENV PYTHONUNBUFFERED=1
 
 # Start the agent
 ENTRYPOINT ["./scripts/entrypoint.sh"]
+
+
