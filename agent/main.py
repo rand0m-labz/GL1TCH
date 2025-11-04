@@ -4,7 +4,6 @@ import os, requests
 
 app = Flask(__name__)
 
-# Agent name (defaults to GL1TCH if not set in environment)
 AGENT_NAME = os.getenv("AGENT_NAME", "GL1TCH")
 
 @app.route("/", methods=["GET"])
@@ -19,14 +18,14 @@ def index():
 def glitch():
     data = request.json
     prompt = data.get("prompt", "")
-    n8n_url = "https://lorelei-gnarlier-marquitta.ngrok-free.dev/webhook/gl1tch-test"
+    n8n_url = os.getenv("WEBHOOK_URL", "http://localhost:5678/webhook-test/gl1tch-test")
 
     try:
-        # Send prompt to n8n webhook
+        # prompt --> n8n webhook
         r = requests.post(n8n_url, json={"prompt": prompt}, timeout=10)
         n8n_response = r.json()
     except Exception as e:
-        # If connection fails, fallback to local response
+        # connection failure --> fallback to local response
         n8n_response = {"reply": f"⚠️ N8N connection failed: {e}"}
 
     return jsonify({

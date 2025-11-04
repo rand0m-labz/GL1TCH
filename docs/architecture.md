@@ -1,9 +1,11 @@
+# architecture.md
+
 # 🧠 GL1TCH Agent – Architecture Overview
 
 ### 🚀 Overview
 
-The **GL1TCH Agent** is an automated AI responder workflow built using **n8n**, **OpenAI**, and **HTTP webhooks**.  
-It listens for incoming prompts via a webhook, processes the message through an LLM chain, and returns a formatted JSON response.
+The **GL1TCH Agent** is an automated AI responder workflow built using **Flask**, **n8n**, **OpenAI**, and **HTTP webhooks**, fully deployed via **Docker** on **Render**.  
+It listens for incoming prompts from web requests or Telegram messages, forwards them through an n8n LLM chain, and returns a structured JSON response with Gl1tch's personality baked in.
 
 ---
 
@@ -12,57 +14,62 @@ It listens for incoming prompts via a webhook, processes the message through an 
 ### **1. Webhook Node**
 
 - **Purpose:** Entry point for all incoming POST requests.
-- **URL Pattern:**
-  ```
+- **Local URL Pattern:**
+```
   http://localhost:5678/webhook-test/gl1tch-test
-  ```
+```
 - **Request Body Example:**
-
-  ```json
+```json
   {
     "prompt": "Gl1tch, are you online?"
   }
-  ```
+```
 
 - **Output:**  
   The webhook captures the JSON payload and passes it to the **HTTP Request** node.
 
 ---
 
-### **2. HTTP Request Node**
+### **2. Webhook Node (n8n-gl1tch)**
 
-- **Purpose:** Acts as a relay or pre-processor.  
-  (Used to transform, forward, or log incoming requests before LLM handling.)
-- **Configured Method:** `POST`
-- **Connected To:** `Basic LLM Chain1`
-- **Input Mapping:**  
-  Reads the full body payload from the Webhook node:
-  ```json
-  { "body": { "prompt": "..." } }
-  ```
+- **Purpose:** Entry point for all incoming POST requests in production.
+- **Production URL:**
+```
+  https://n8n-gl1tch.onrender.com/webhook/gl1tch-test
+```
+- **Request Body Example:**
+```json
+  {
+    "prompt": "Gl1tch, analyze this text..."
+  }
+```
+- **Output:**  
+  Forwards the JSON body into the LLM workflow, connecting Flask (gl1tch-agent) to n8n (n8n-gl1tch).
 
 ---
 
 ### **3. Basic LLM Chain**
 
-- **Purpose:** Passes the user’s prompt into an OpenAI Chat Model and retrieves a response.
+- **Purpose:** Passes the user's prompt into an OpenAI Chat Model and retrieves a response.
 - **Input Source:** `HTTP Request`
 - **Prompt Expression:**
-  ```handlebars
+```handlebars
   {{$json.body.prompt}}
-  ```
+```
 - **Chat Messages:** None (single-prompt mode)
 - **Model Connected:** `OpenAI Chat Model1`
-- **Output:** Returns a JSON object containing the AI’s response, e.g.:
-  ```json
-  { "text": "Hey there, GL1TCH is online ⚡" }
-  ```
+- **Output:** Returns a JSON object containing the AI's response, e.g.:
+```json
+  {
+    "text": "Hey there, GL1TCH is online ⚡"
+  }
+```
 
 ---
 
 ### **4. OpenAI Chat Model**
 
-- **Purpose:** Processes the text prompt via OpenAI’s API (GPT-4 or GPT-5 model).
+- **Purpose:** Processes the text prompt via OpenAI's API (GPT-4 or GPT-5 model).
 - **Response Type:** Free-form text
 - **Output Field:** `text` (used by the next node)
 
@@ -73,19 +80,18 @@ It listens for incoming prompts via a webhook, processes the message through an 
 - **Purpose:** Sends a structured response back to the requester.
 - **Respond With:** JSON
 - **Response Body:**
-
-  ```json
+```json
   {
     "reply": "{{ $json.text || 'No response generated' }}"
   }
-  ```
+```
 
 - **Example Response:**
-  ```json
+```json
   {
     "reply": "Yo, GL1TCH here — system stable and listening 👾"
   }
-  ```
+```
 
 ---
 
@@ -102,15 +108,13 @@ It listens for incoming prompts via a webhook, processes the message through an 
 ---
 
 ## 🧪 Test Command
-
 ```powershell
-Invoke-WebRequest -Uri "http://localhost:5678/webhook-test/gl1tch-test" `
+Invoke-WebRequest -Uri "https://n8n-gl1tch.onrender.com/webhook/gl1tch-test" `
 -Method POST -Body '{"prompt":"Gl1tch, are you online?"}' `
 -ContentType "application/json"
 ```
 
 **Expected Output:**
-
 ```json
 {
   "reply": "Hey there! Gl1tch reporting in ⚡"
@@ -120,16 +124,19 @@ Invoke-WebRequest -Uri "http://localhost:5678/webhook-test/gl1tch-test" `
 ---
 
 ## 🧰 Environment Variables (`.env`)
-
-```
+```ini
+# Core Keys
 OPENAI_API_KEY=your_api_key_here
-```
 
-Optional future variables:
+# Agent Info
+AGENT_NAME=GL1TCH
+AGENT_PORT=8080
+GL1TCH_API_URL=https://gl1tch-agent.onrender.com
+WEBHOOK_URL=https://n8n-gl1tch.onrender.com/webhook/gl1tch-test
 
-```
+# Optional Future Variables
 GL1TCH_MODEL=gpt-5
-GL1TCH_WEBHOOK_URL=http://localhost:5678/webhook-test/gl1tch-test
+SERVICE_TYPE=agent
 ```
 
 ---
@@ -139,4 +146,6 @@ GL1TCH_WEBHOOK_URL=http://localhost:5678/webhook-test/gl1tch-test
 - 🧩 Add personality profiles for Gl1tch (sarcasm, analysis, humor)
 - 🕹️ Integrate external APIs for real data (crypto, weather, etc.)
 - 💾 Log chat history to MongoDB or Supabase
-- 🧠 Introduce memory between sessions
+- 🤖 Add Telegram and X(Twitter) bot layers
+- 🧠 Introduce persistent memory between sessions
+- ⚙️ Add health monitoring & uptime checks for both Render services
